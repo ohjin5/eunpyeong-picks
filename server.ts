@@ -252,11 +252,10 @@ function requireAdmin(
 // Server
 // ============================================================
 
-async function startServer() {
-  const app = express();
+const app = express();
 
-  const PORT =
-    Number(process.env.PORT) || 3000;
+const PORT =
+  Number(process.env.PORT) || 3000;
 
 
   // ----------------------------------------------------------
@@ -1532,10 +1531,19 @@ async function startServer() {
   );
 
 
-  // ==========================================================
-  // VITE / STATIC
-  // ==========================================================
+// ==========================================================
+// LOCAL VITE / STATIC SERVER
+// ==========================================================
 
+/**
+ * Vercel에서는 이 파일의 Express app을 import해서 Function으로 사용한다.
+ * 따라서 Vercel 환경에서는 app.listen()이나 Vite middleware를 실행하지 않는다.
+ *
+ * 로컬에서는 기존처럼:
+ *   npm.cmd run dev
+ * 로 실행하면 Vite middleware + Express API가 한 포트에서 동작한다.
+ */
+async function startLocalServer() {
   if (
     process.env.NODE_ENV !==
     'production'
@@ -1559,19 +1567,13 @@ async function startServer() {
         'dist'
       );
 
-    /**
-     * server.cjs / sourcemap 파일이 같은 dist에 있다면
-     * 외부에 노출되지 않도록 차단
-     */
     app.get(
       [
         '/server.cjs',
         '/server.cjs.map',
       ],
       (_req, res) => {
-        return res.sendStatus(
-          404
-        );
+        return res.sendStatus(404);
       }
     );
 
@@ -1583,7 +1585,7 @@ async function startServer() {
 
     app.get(
       '*',
-      (req, res) => {
+      (_req, res) => {
         res.sendFile(
           path.join(
             distPath,
@@ -1593,11 +1595,6 @@ async function startServer() {
       }
     );
   }
-
-
-  // ==========================================================
-  // START
-  // ==========================================================
 
   app.listen(
     PORT,
@@ -1609,9 +1606,7 @@ async function startServer() {
 
       console.log(
         `[Eunpyeong Picks] Mock mode: ${
-          process.env
-            .USE_MOCK_DATA !==
-          'false'
+          process.env.USE_MOCK_DATA === 'true'
         }`
       );
     }
@@ -1619,13 +1614,26 @@ async function startServer() {
 }
 
 
-startServer().catch(
-  (error) => {
-    console.error(
-      'Server startup failed:',
-      error
-    );
+// ============================================================
+// LOCAL BOOTSTRAP
+// ============================================================
 
-    process.exit(1);
-  }
-);
+if (!process.env.VERCEL) {
+  startLocalServer().catch(
+    (error) => {
+      console.error(
+        'Server startup failed:',
+        error
+      );
+
+      process.exit(1);
+    }
+  );
+}
+
+
+// ============================================================
+// VERCEL / SERVER EXPORT
+// ============================================================
+
+export default app;
