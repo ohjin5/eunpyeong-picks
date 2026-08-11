@@ -1,16 +1,18 @@
 import {
   getSupabaseServerClient,
   isSupabaseConfigured,
-} from '../supabase/server';
+} from '../supabase/server.js';
 
-import { StorageService } from '../../server/storage';
+import {
+  StorageService,
+} from '../../server/storage.js';
 
 import {
   Product,
   ProductCategory,
   UserSubmission,
   MaterialRequest,
-} from '../../types/store';
+} from '../../types/store.js';
 
 
 // ============================================================

@@ -1,7 +1,7 @@
 import {
   getSupabaseServerClient,
   isSupabaseConfigured,
-} from '../lib/supabase/server';
+} from '../lib/supabase/server.js';
 
 import {
   Product,
@@ -11,7 +11,7 @@ import {
   RequestStatus,
   UserSubmission,
   SubmissionStatus,
-} from '../types/store';
+} from '../types/store.js';
 
 
 // ============================================================
