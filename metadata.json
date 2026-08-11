@@ -1,0 +1,6 @@
+{
+  "name": "Eunpyeong Picks",
+  "description": "은평성모병원 Beta Crew가 제작한 AI 서비스, Agent, 업무 자동화, Excel 도구, Prompt 플랫폼 (Eunpyeong Picks)",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
