@@ -1,19 +1,45 @@
 @import "tailwindcss";
 
+
+/*
+ * Eunpyeong Picks는 다크모드를 사용하지 않음.
+ * dark: Tailwind 유틸리티가 OS/브라우저의
+ * 다크모드 설정에 따라 자동 활성화되는 것을 차단한다.
+ */
+@custom-variant dark (&:where(.eunpyeong-dark-disabled, .eunpyeong-dark-disabled *));
+
+
+:root {
+  color-scheme: light;
+}
+
+
+html {
+  color-scheme: light;
+  background-color: #F5F5F7;
+}
+
+
+body {
+  margin: 0;
+  background-color: #F5F5F7;
+  color: #111827;
+}
+
+
+#root {
+  min-height: 100vh;
+  background-color: #F5F5F7;
+}
+
+
 @layer utilities {
   .scrollbar-none::-webkit-scrollbar {
     display: none;
   }
+
   .scrollbar-none {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-}
-
-body {
-  background-color: #F5F5F7;
-}
-
-.dark body {
-  background-color: #000000;
 }
