@@ -99,13 +99,19 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           </div>
 
           {/* Section 5: Big Thumbnail / Hero Preview */}
-          <div className="rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/80 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 aspect-16/9 sm:aspect-21/9 relative shadow-xs">
-            <img
-              src={product.thumbnailUrl}
-              alt={product.title}
-              className="w-full h-full object-cover"
-            />
-          </div>
+          {/* Section 5: Big Thumbnail / Hero Preview */}
+          {product.thumbnailUrl && product.thumbnailUrl.trim().length > 0 && (
+            <div className="rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/80 bg-slate-100 aspect-16/9 sm:aspect-21/9 relative shadow-xs">
+              <img
+                src={product.thumbnailUrl}
+                alt={product.title}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.parentElement?.remove();
+                }}
+              />
+            </div>
+          )}
 
           {/* Section 6: 서비스 소개 (Service Description) */}
           <div className="space-y-3">
