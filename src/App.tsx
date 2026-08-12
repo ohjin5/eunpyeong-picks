@@ -53,6 +53,9 @@ export default function App() {
   // Session view history
   const [viewedInSession, setViewedInSession] = useState<Set<string>>(new Set());
 
+  // Random recommendation products shown on the home screen
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+
   // Check initial admin session status on mount
   useEffect(() => {
     fetch('/api/admin/verify')
@@ -182,8 +185,106 @@ export default function App() {
     return result;
   }, [products, selectedCategory, searchQuery, sortBy]);
 
-  const featuredProducts = useMemo(() => {
-    return products.filter(p => p.status === 'PUBLISHED' && p.featured);
+  // ----------------------------------------------------
+  // RANDOM RECOMMENDATIONS
+  // ----------------------------------------------------
+  // 홈의 추천 도구는 공개된 전체 목록에서 최대 3개를 무작위로 노출한다.
+  // 공개 도구가 충분하면 직전 추천을 우선 제외해 반복 노출을 줄인다.
+  useEffect(() => {
+    const publishedProducts =
+      products.filter(
+        product =>
+          product.status === 'PUBLISHED'
+      );
+
+    if (publishedProducts.length === 0) {
+      setFeaturedProducts([]);
+      return;
+    }
+
+    const shuffleProducts = (
+      items: Product[]
+    ): Product[] => {
+      const copied = [...items];
+
+      for (
+        let i = copied.length - 1;
+        i > 0;
+        i -= 1
+      ) {
+        const j =
+          Math.floor(
+            Math.random() * (i + 1)
+          );
+
+        [
+          copied[i],
+          copied[j],
+        ] = [
+          copied[j],
+          copied[i],
+        ];
+      }
+
+      return copied;
+    };
+
+    const updateFeaturedProducts =
+      () => {
+        setFeaturedProducts(
+          previous => {
+            const previousIds =
+              new Set(
+                previous.map(
+                  product =>
+                    product.id
+                )
+              );
+
+            const nonRepeated =
+              publishedProducts.filter(
+                product =>
+                  !previousIds.has(
+                    product.id
+                  )
+              );
+
+            const targetCount =
+              Math.min(
+                3,
+                publishedProducts.length
+              );
+
+            const pool =
+              nonRepeated.length >= targetCount
+                ? nonRepeated
+                : publishedProducts;
+
+            return shuffleProducts(
+              pool
+            ).slice(
+              0,
+              targetCount
+            );
+          }
+        );
+      };
+
+    // 첫 화면에서 바로 추천 도구 표시
+    updateFeaturedProducts();
+
+    // 8초마다 추천 도구 교체
+    const intervalId =
+      window.setInterval(
+        updateFeaturedProducts,
+        8000
+      );
+
+    return () => {
+      window.clearInterval(
+        intervalId
+      );
+    };
   }, [products]);
 
   // Admin Product Actions
@@ -438,7 +539,7 @@ export default function App() {
                     추천 도구
                   </h2>
                   <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                    은평성모병원 교직원들에게 추천하는 핵심 AI 도구입니다.
+                    등록된 업무 도구 중 다양한 도구를 자동으로 추천해드립니다.
                   </p>
                 </div>
               </div>
@@ -446,7 +547,7 @@ export default function App() {
               {/* Horizontal Scroll Container */}
               {featuredProducts.length === 0 ? (
                 <div className="p-8 text-center bg-white dark:bg-[#1c1c1e] rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow-xs">
-                  <p className="text-sm text-slate-500 dark:text-slate-400">아직 추천 도구가 없습니다.</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">아직 추천할 수 있는 도구가 없습니다.</p>
                 </div>
               ) : (
                 <div className="flex gap-6 overflow-x-auto scrollbar-none pb-6 pt-2 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 snap-x snap-mandatory">
